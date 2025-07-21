@@ -12,8 +12,6 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB error:", err));
 
-const User = require("./models/User");
-
 const aiRouter = require("./routes/ai");
 const matchmakingRouter = require("./routes/matchmaking");
 
