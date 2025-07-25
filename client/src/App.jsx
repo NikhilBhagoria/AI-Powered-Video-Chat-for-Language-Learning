@@ -1,21 +1,66 @@
-import React, { useState } from "react";
-import Login from "./components/Login";
-import Matchmaking from "./components/Matchmaking";
-import VideoChat from "./components/VideoChat";
+// import React, { useState } from "react";
+// import Login from "./components/Login";
+// import Matchmaking from "./components/Matchmaking";
+// import VideoChat from "./components/VideoChat";
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [matched, setMatched] = useState(null);
+// function App() {
+//   const [user, setUser] = useState(null);
+//   const [matched, setMatched] = useState(null);
 
-  if (!user) {
-    return <Login onLogin={setUser} />;
-  }
+//   if (!user) {
+//     return <Login onLogin={setUser} />;
+//   }
 
-  if (!matched) {
-    return <Matchmaking user={user} onMatched={setMatched} />;
-  }
+//   if (!matched) {
+//     return <Matchmaking user={user} onMatched={setMatched} />;
+//   }
 
-  return <VideoChat myId={matched.userId} partner={matched.partner} />;
-}
+//   return <VideoChat myId={matched.userId} partner={matched.partner} />;
+// }
+
+// export default App;
+
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
+import PrivateRoute from './components/PrivateRoute';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import Dashboard from './components/Dashboard';
+import VideoChat from './components/Chat/VideoChat';
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <SocketProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/chat/:partnerId"
+              element={
+                <PrivateRoute>
+                  <VideoChat />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Router>
+      </SocketProvider>
+    </AuthProvider>
+  );
+};
 
 export default App;
