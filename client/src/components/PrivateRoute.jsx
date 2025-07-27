@@ -1,10 +1,10 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
   const location = useLocation();
+  const {loading ,user, isAuthenticated} = useSelector((state) => state.auth)
 
   // Show loading state while checking authentication
   if (loading) {
@@ -18,7 +18,7 @@ const PrivateRoute = ({ children }) => {
 
   // If not authenticated, redirect to login
   // Save the attempted URL for redirecting after login
-  if (!user) {
+  if (!user || !isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
