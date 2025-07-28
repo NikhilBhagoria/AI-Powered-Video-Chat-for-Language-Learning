@@ -1,13 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { checkAuthStatus } from '../store/slices/authSlice'; // Import your auth check action
 
 const PrivateRoute = ({ children }) => {
   const location = useLocation();
-  const {loading ,user, isAuthenticated} = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const [isChecking, setIsChecking] = useState(true);
+  const { loading, user, isAuthenticated } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await dispatch(checkAuthStatus()).unwrap();
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    if (!isAuthenticated && !user) {
+      checkAuth();
+    } else {
+      setIsChecking(false);
+    }
+  }, [dispatch, isAuthenticated, user]);
 
   // Show loading state while checking authentication
-  if (loading) {
+  if (loading || isChecking) {
     return (
       <div className="loading-screen">
         <div className="spinner"></div>
@@ -17,7 +38,6 @@ const PrivateRoute = ({ children }) => {
   }
 
   // If not authenticated, redirect to login
-  // Save the attempted URL for redirecting after login
   if (!user || !isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
