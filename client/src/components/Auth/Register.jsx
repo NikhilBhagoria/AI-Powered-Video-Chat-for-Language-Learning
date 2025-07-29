@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
-  const { login } = useAuth();
+  // const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -13,8 +13,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("for",formData);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -23,11 +24,11 @@ const Register = () => {
       });
 
       const data = await response.json();
-      if (response.ok) {
-        login(data.user, data.token);
-      } else {
-        throw new Error(data.message);
-      }
+      // if (response.ok) {
+      //   login(data.user, data.token);
+      // } else {
+      //   throw new Error(data.message);
+      // }
     } catch (error) {
       console.error('Registration error:', error);
     }

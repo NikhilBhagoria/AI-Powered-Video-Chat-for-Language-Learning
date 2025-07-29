@@ -40,10 +40,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  profilePicture: {
-    type: String,
-    default: ''
-  },
+  // profilePicture: {
+  //   type: String,
+  //   default: ''
+  // },
   createdAt: {
     type: String,
     default: () => new Date().toISOString().slice(0, 19).replace('T', ' ')
@@ -52,6 +52,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: () => new Date().toISOString().slice(0, 19).replace('T', ' ')
   }
+});
+
+// Update timestamps on save
+userSchema.pre('save', function(next) {
+  this.updatedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  next();
 });
 
 // Hash password before saving
@@ -65,12 +71,6 @@ userSchema.pre('save', async function(next) {
   } catch (error) {
     next(error);
   }
-});
-
-// Update timestamps on save
-userSchema.pre('save', function(next) {
-  this.updatedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  next();
 });
 
 // Compare password method

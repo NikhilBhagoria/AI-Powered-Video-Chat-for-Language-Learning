@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { loginUser, clearError } from '../../store/slices/authSlice';
 import styles from './Login.module.css';
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location  =  useLocation();
   const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
@@ -14,22 +15,40 @@ const Login = () => {
     password: ''
   });
 
+  // Memoize the navigation function to prevent dependency changes
+  const navigateToDestination = useCallback(() => {
+    const from = location.state?.from?.pathname || '/dashboard';
+    navigate(from, { replace: true });
+  }, [navigate, location.state?.from?.pathname]);
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigateToDestination();
     }
+  }, [isAuthenticated,navigateToDestination]);
+
+  // Clear errors on component unmount only
+  useEffect(() => {
     return () => dispatch(clearError());
-  }, [isAuthenticated, navigate, dispatch]);
+  }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    if (error) {
+      dispatch(clearError());
+    }
+
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      return;
+    }
     dispatch(loginUser(formData));
   };
 
@@ -69,7 +88,7 @@ const Login = () => {
           <button 
             type="submit" 
             className={styles.loginButton}
-            disabled={loading}
+            disabled={loading || !formData.email || !formData.password}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

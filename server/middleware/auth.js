@@ -14,9 +14,36 @@ const authenticateToken = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
-        return res.status(403).json({
+        console.log("JWT verification error:", err);
+        
+        if (err.name === 'TokenExpiredError') {
+          return res.status(401).json({
+            success: false,
+            message: 'Token expired',
+            code: 'TOKEN_EXPIRED'
+          });
+        }
+        
+        if (err.name === 'JsonWebTokenError') {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid token',
+            code: 'INVALID_TOKEN'
+          });
+        }
+        
+        if (err.name === 'NotBeforeError') {
+          return res.status(401).json({
+            success: false,
+            message: 'Token not active yet',
+            code: 'TOKEN_NOT_ACTIVE'
+          });
+        }
+        
+        return res.status(401).json({
           success: false,
-          message: 'Invalid or expired token'
+          message: 'Token verification failed',
+          code: 'TOKEN_ERROR'
         });
       }
 

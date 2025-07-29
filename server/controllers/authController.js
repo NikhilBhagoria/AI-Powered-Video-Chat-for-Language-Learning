@@ -182,6 +182,77 @@ const authController = {
         message: 'Error fetching user data'
       });
     }
+  },
+
+  // Verify user token and return user data
+  verifyToken: async (req, res) => {
+    try {
+      // Get token from header
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: 'No token provided'
+        });
+      }
+
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Find user
+      const user = await User.findById(decoded.userId)
+        .select('-password'); // Exclude password
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      // Update last login time
+      user.lastLogin = getUTCDateTime();
+      await user.save();
+
+      // Return user data
+      res.json({
+        success: true,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          nativeLanguage: user.nativeLanguage,
+          learningLanguages: user.learningLanguages,
+          lastLogin: user.lastLogin,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        }
+      });
+
+    } catch (error) {
+      console.error('Token verification error:', error);
+      
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
+
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        message: 'Error verifying token'
+      });
+    }
   }
 };
 

@@ -96,4 +96,7 @@ router.post('/login', authController.login);
 // Get current user (protected route)
 router.get('/me', authenticateToken, authController.getCurrentUser);
 
+// Verify token and get user data
+router.get('/verify', authenticateToken, authController.verifyToken);
+
 module.exports = router;
