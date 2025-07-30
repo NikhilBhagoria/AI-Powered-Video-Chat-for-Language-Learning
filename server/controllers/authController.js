@@ -58,7 +58,6 @@ const authController = {
       // Return success response
       res.status(201).json({
         success: true,
-        data: {
           token,
           user: {
             id: user._id,
@@ -68,7 +67,6 @@ const authController = {
             learningLanguages: user.learningLanguages,
             lastLogin: user.lastLogin
           }
-        }
       });
 
     } catch (error) {
@@ -126,7 +124,6 @@ const authController = {
       // Return success response
       res.json({
         success: true,
-        data: {
           token,
           user: {
             id: user._id,
@@ -136,7 +133,6 @@ const authController = {
             learningLanguages: user.learningLanguages,
             lastLogin: user.lastLogin
           }
-        }
       });
 
     } catch (error) {
