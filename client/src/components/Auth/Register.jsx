@@ -63,6 +63,7 @@ const Register = () => {
         <option>Spanish</option>
         <option>French</option>
         <option>German</option>
+        <option>Hindi</option>
       </select>
       <button type="submit">Register</button>
     </form>
