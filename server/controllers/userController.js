@@ -18,7 +18,7 @@ const userController = {
       const user = await User.findById(userId)
         .select('-password')
         .lean();
-
+      console.log("user",user);
       if (!user) {
         return res.status(404).json({
           success: false,
