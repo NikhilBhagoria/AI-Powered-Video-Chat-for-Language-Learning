@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-// import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
-  // const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -24,11 +22,6 @@ const Register = () => {
       });
 
       const data = await response.json();
-      // if (response.ok) {
-      //   login(data.user, data.token);
-      // } else {
-      //   throw new Error(data.message);
-      // }
     } catch (error) {
       console.error('Registration error:', error);
     }
