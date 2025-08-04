@@ -75,6 +75,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './components/Auth/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import Register from './components/Auth/Register';
+import LandingPage from './components/LandingPage';
 
 function App() {
   // useEffect(() => {
@@ -85,6 +86,7 @@ function App() {
     <Provider store={store}>
       <Router>
         <Routes>
+          <Route path='/' element={<LandingPage/>}/>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
