@@ -12,13 +12,14 @@ const userController = {
   getUserData: async (req, res) => {
     try {
       const userId = req.user.userId; // From auth middleware
+      console.log("userid",userId)
       const currentDateTime = getUTCDateTime();
 
       // Get user with populated data
       const user = await User.findById(userId)
         .select('-password')
         .lean();
-      console.log("user",user);
+      console.log("user::_->",user);
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -38,6 +39,7 @@ const userController = {
       .select('lastMessage lastActivity unreadCount')
       .sort({ lastActivity: -1 })
       .lean();
+      console.log("activeChats:::-<",activeChats);
 
       // Format active chats data
       const formattedChats = activeChats.map(chat => {

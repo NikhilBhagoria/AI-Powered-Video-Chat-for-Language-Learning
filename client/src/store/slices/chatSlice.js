@@ -60,8 +60,49 @@ export const translateMessage = createAsyncThunk(
   }
 );
 
+// Chat (UserSearch)
+export const searchUsers = createAsyncThunk(
+  'chat/searchUsers',
+  async ({ query, language }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/users/search?q=${query}&language=${language}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to search users');
+    }
+  }
+);
+
+export const initiateChat = createAsyncThunk(
+  'chat/initiateChat',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${API_URL}/chats/initiate`,
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to start chat');
+    }
+  }
+);
+
+
+
 // Initial state
 const initialState = {
+  searchResults: [],
   activeChats: [],
   currentChat: {
     id: null,
@@ -81,6 +122,9 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    clearSearch: (state) => {
+      state.searchResults = [];
+    },
     setCurrentChat: (state, action) => {
       state.currentChat = {
         ...state.currentChat,
@@ -183,6 +227,31 @@ const chatSlice = createSlice({
         if (state.currentChat.id === chatId) {
           updateMessage(state.currentChat.messages);
         }
+      })
+      // UserSearch
+      .addCase(searchUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(searchUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.searchResults = action.payload;
+      })
+      .addCase(searchUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(initiateChat.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(initiateChat.fulfilled, (state, action) => {
+        state.loading = false;
+        state.activeChats = [...state.activeChats, action.payload];
+      })
+      .addCase(initiateChat.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   }
 });
@@ -196,6 +265,7 @@ export const selectChatError = (state) => state.chat.error;
 
 // Action creators
 export const {
+  clearSearch,
   setCurrentChat,
   addMessage,
   updateChatStatus,
