@@ -132,6 +132,45 @@ const userController = {
         message: 'Error fetching user data'
       });
     }
+  },
+  
+  searchUsers: async (req, res) => {
+    try {
+      const { q, language } = req.query;
+      const currentUserId = req.user.userId;
+  
+      let query = {
+        _id: { $ne: currentUserId } // Exclude current user
+      };
+  
+      if (q) {
+        query.$or = [
+          { username: { $regex: q, $options: 'i' } },
+          { nativeLanguage: { $regex: q, $options: 'i' } }
+        ];
+      }
+  
+      if (language) {
+        query.$or = query.$or || [];
+        query.$or.push(
+          { nativeLanguage: language },
+          { learningLanguages: language }
+        );
+      }
+  
+      const users = await User.find(query)
+        .select('username profilePicture nativeLanguage learningLanguages isOnline lastLogin')
+        .limit(20)
+        .lean();
+  
+      res.json(users);
+    } catch (error) {
+      console.error('Search users error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error searching users'
+      });
+    }
   }
 };
 
