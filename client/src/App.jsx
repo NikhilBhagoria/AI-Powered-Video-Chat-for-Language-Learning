@@ -86,7 +86,7 @@ function App() {
     <Provider store={store}>
       <Router>
         <Routes>
-          <Route path='/' element={<LandingPage/>}/>
+          <Route path='/' element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
@@ -97,6 +97,11 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/search" element={
+            <PrivateRoute>
+              <UserSearch />
+            </PrivateRoute>
+          } />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
