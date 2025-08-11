@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { searchUsers, initiateChat } from '../../store/slices/chatSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 const UserSearch = () => {
   const dispatch = useDispatch();
@@ -23,14 +23,15 @@ const UserSearch = () => {
   };
 
   const startChat = async (userId) => {
+    console.log("user--",userId);
     try {
       const chatSession = await dispatch(initiateChat(userId)).unwrap();
+      console.log("char",chatSession);
       navigate(`/chat/${chatSession.chatId}`);
     } catch (error) {
       console.error('Failed to start chat:', error);
     }
   };
-
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Search Form */}
@@ -111,7 +112,7 @@ const UserSearch = () => {
                   <button
                     onClick={() => startChat(user._id)}
                     className="px-4 py-2 bg-blue-600 text-white text-sm rounded-full hover:bg-blue-700 transition-colors"
-                    disabled={user._id === currentUser._id}
+                    disabled={user._id === currentUser.id}
                   >
                     Chat
                   </button>

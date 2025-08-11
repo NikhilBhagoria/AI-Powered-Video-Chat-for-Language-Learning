@@ -76,6 +76,7 @@ import Login from './components/Auth/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import Register from './components/Auth/Register';
 import LandingPage from './components/LandingPage';
+import UserSearch from './components/UserSearch/UserSearch';
 
 function App() {
   // useEffect(() => {

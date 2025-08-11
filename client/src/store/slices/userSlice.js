@@ -14,7 +14,7 @@ export const fetchUserData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/user/data`, {
+      const response = await axios.get(`${API_URL}/users/data`, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
