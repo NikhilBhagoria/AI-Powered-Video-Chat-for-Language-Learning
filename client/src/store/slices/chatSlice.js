@@ -88,9 +88,15 @@ export const initiateChat = createAsyncThunk(
         `${API_URL}/chats/initiate`,
         { userId },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to start chat');
@@ -104,14 +110,7 @@ export const initiateChat = createAsyncThunk(
 const initialState = {
   searchResults: [],
   activeChats: [],
-  currentChat: {
-    id: null,
-    partner: null,
-    messages: [],
-    status: 'idle', // 'idle' | 'typing' | 'recording' | 'translating'
-    lastMessageTime: null,
-    unreadCount: 0
-  },
+  currentChat: null,
   chatHistory: {},
   loading: false,
   error: null,
@@ -126,11 +125,7 @@ const chatSlice = createSlice({
       state.searchResults = [];
     },
     setCurrentChat: (state, action) => {
-      state.currentChat = {
-        ...state.currentChat,
-        ...action.payload,
-        messages: state.chatHistory[action.payload.id] || []
-      };
+      state.currentChat = action.payload;
     },
     addMessage: (state, action) => {
       const { chatId, message } = action.payload;
