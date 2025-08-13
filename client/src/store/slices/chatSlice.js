@@ -242,7 +242,10 @@ const chatSlice = createSlice({
       })
       .addCase(initiateChat.fulfilled, (state, action) => {
         state.loading = false;
-        state.activeChats = [...state.activeChats, action.payload];
+        state.currentChat = action.payload.chat;
+        if (!state.activeChats.find(chat => chat._id === action.payload.chatId)) {
+          state.activeChats.push(action.payload.chat);
+        }
       })
       .addCase(initiateChat.rejected, (state, action) => {
         state.loading = false;
