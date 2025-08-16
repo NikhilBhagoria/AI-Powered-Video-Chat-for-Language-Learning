@@ -23,13 +23,17 @@ const UserSearch = () => {
   };
 
   const startChat = async (userId) => {
-    console.log("user--",userId);
     try {
-      const chatSession = await dispatch(initiateChat(userId)).unwrap();
-      console.log("char",chatSession);
-      navigate(`/chat/${chatSession.chatId}`);
+      const result = await dispatch(initiateChat(userId)).unwrap();
+      if (result.success && result.chatId) {
+        navigate(`/chat/${result.chatId}`);
+      } else {
+        console.error('No chat ID received');
+      }
     } catch (error) {
       console.error('Failed to start chat:', error);
+      // You might want to show an error message to the user
+      alert(error.message || 'Failed to start chat');
     }
   };
   return (
