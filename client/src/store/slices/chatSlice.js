@@ -3,6 +3,25 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+//Chat Message
+export const fetchMessages = createAsyncThunk(
+  'chat/fetchMessages',
+  async (chatId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/api/chats/${chatId}/messages`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch messages');
+    }
+  }
+); 
+
 // Async Thunks
 export const fetchChatHistory = createAsyncThunk(
   'chat/fetchHistory',
