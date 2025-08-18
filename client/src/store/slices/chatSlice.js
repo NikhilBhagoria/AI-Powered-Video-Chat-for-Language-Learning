@@ -22,6 +22,45 @@ export const fetchMessages = createAsyncThunk(
   }
 ); 
 
+// Send message thunk
+// export const sendMessage = createAsyncThunk(
+//   'chat/sendMessage',
+//   async ({ chatId, content }, { rejectWithValue, getState }) => {
+//     try {
+//       const token = localStorage.getItem('token');
+//       const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+//       const response = await axios.post(
+//         `${API_URL}/api/chats/${chatId}/messages`,
+//         {
+//           content,
+//           timestamp: currentTime
+//         },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             'Content-Type': 'application/json'
+//           }
+//         }
+//       );
+
+//       // Get current user from state
+//       const currentUser = getState().auth.user;
+
+//       return {
+//         message: response.data,
+//         lastMessage: {
+//           content,
+//           sender: currentUser._id,
+//           timestamp: currentTime
+//         }
+//       };
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data || 'Failed to send message');
+//     }
+//   }
+// );
+
 // Async Thunks
 export const fetchChatHistory = createAsyncThunk(
   'chat/fetchHistory',
