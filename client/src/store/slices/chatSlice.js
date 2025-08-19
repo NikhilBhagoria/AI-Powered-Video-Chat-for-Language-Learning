@@ -224,7 +224,20 @@ const chatSlice = createSlice({
       if (state.currentChat.id === chatId) {
         state.currentChat.messages = [];
       }
+    },
+    updateLastMessage: (state, action) => {
+      const { chatId, lastMessage } = action.payload;
+      const chat = state.activeChats.find(c => c._id === chatId);
+      if (chat) {
+        chat.lastMessage = lastMessage;
+        chat.lastActivity = lastMessage.timestamp;
+      }
+      if (state.currentChat?._id === chatId) {
+        state.currentChat.lastMessage = lastMessage;
+        state.currentChat.lastActivity = lastMessage.timestamp;
+      }
     }
+  },
   },
   extraReducers: (builder) => {
     builder
