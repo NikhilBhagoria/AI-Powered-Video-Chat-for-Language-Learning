@@ -238,7 +238,6 @@ const chatSlice = createSlice({
       }
     }
   },
-  },
   extraReducers: (builder) => {
     builder
       // Fetch Chat History
@@ -321,7 +320,20 @@ const chatSlice = createSlice({
       .addCase(initiateChat.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      // Fetch Messages
+      .addCase(fetchMessages.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMessages.fulfilled, (state, action) => {
+        state.loading = false;
+        state.messages = action.payload;
+      })
+      .addCase(fetchMessages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
   }
 });
 
