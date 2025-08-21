@@ -276,6 +276,28 @@ const chatSlice = createSlice({
       .addCase(sendMessage.rejected, (state, action) => {
         state.error = action.payload;
       })
+      // Send Message (testing)
+      // .addCase(sendMessage.pending, (state) => {
+      //   state.error = null;
+      // })
+      // .addCase(sendMessage.fulfilled, (state, action) => {
+      //   state.messages.push(action.payload.message);
+      //   const { chatId, lastMessage } = action.payload;
+      //   // Update last message in chat
+      //   const chat = state.activeChats.find(c => c._id === chatId);
+      //   if (chat) {
+      //     chat.lastMessage = lastMessage;
+      //     chat.lastActivity = lastMessage.timestamp;
+      //   }
+      //   if (state.currentChat?._id === chatId) {
+      //     state.currentChat.lastMessage = lastMessage;
+      //     state.currentChat.lastActivity = lastMessage.timestamp;
+      //   }
+      // })
+      // .addCase(sendMessage.rejected, (state, action) => {
+      //   state.error = action.payload;
+      // })
+      
       // Translate Message
       .addCase(translateMessage.fulfilled, (state, action) => {
         const { messageId, chatId, translation } = action.payload;
