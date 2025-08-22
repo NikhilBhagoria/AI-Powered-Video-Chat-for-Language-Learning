@@ -3,122 +3,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-//Chat Message
-export const fetchMessages = createAsyncThunk(
-  'chat/fetchMessages',
-  async (chatId, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `${API_URL}/api/chats/${chatId}/messages`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch messages');
-    }
-  }
-); 
-
-// Send message thunk
-// export const sendMessage = createAsyncThunk(
-//   'chat/sendMessage',
-//   async ({ chatId, content }, { rejectWithValue, getState }) => {
-//     try {
-//       const token = localStorage.getItem('token');
-//       const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-//       const response = await axios.post(
-//         `${API_URL}/api/chats/${chatId}/messages`,
-//         {
-//           content,
-//           timestamp: currentTime
-//         },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//             'Content-Type': 'application/json'
-//           }
-//         }
-//       );
-
-//       // Get current user from state
-//       const currentUser = getState().auth.user;
-
-//       return {
-//         message: response.data,
-//         lastMessage: {
-//           content,
-//           sender: currentUser._id,
-//           timestamp: currentTime
-//         }
-//       };
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || 'Failed to send message');
-//     }
-//   }
-// );
-
-// Async Thunks
-export const fetchChatHistory = createAsyncThunk(
-  'chat/fetchHistory',
-  async (chatId, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/chat/${chatId}/history`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch chat history');
-    }
-  }
-);
-
-export const sendMessage = createAsyncThunk(
-  'chat/sendMessage',
-  async ({ chatId, message, targetLanguage }, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${API_URL}/chat/${chatId}/message`,
-        { 
-          content: message,
-          targetLanguage 
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to send message');
-    }
-  }
-);
-
-export const translateMessage = createAsyncThunk(
-  'chat/translateMessage',
-  async ({ messageId, targetLanguage }, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${API_URL}/chat/translate`,
-        { messageId, targetLanguage },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to translate message');
-    }
-  }
-);
-
-// Chat (UserSearch)
+// Search Users
 export const searchUsers = createAsyncThunk(
   'chat/searchUsers',
   async ({ query, language }, { rejectWithValue }) => {
@@ -137,6 +22,7 @@ export const searchUsers = createAsyncThunk(
   }
 );
 
+// Initialize Chat
 export const initiateChat = createAsyncThunk(
   'chat/initiateChat',
   async (userId, { rejectWithValue }) => {
@@ -152,78 +38,138 @@ export const initiateChat = createAsyncThunk(
           }
         }
       );
+
       if (!response.data.success) {
         throw new Error(response.data.message);
       }
-      return response.data;
+
+      return {
+        chatId: response.data.chatId,
+        chat: response.data.chat
+      };
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to start chat');
+      return rejectWithValue(error.response?.data?.message || 'Failed to start chat');
     }
   }
 );
 
+// Get Active Chats
+export const getActiveChats = createAsyncThunk(
+  'chat/getActiveChats',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/chats/active`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch active chats');
+    }
+  }
+);
 
+// Fetch Messages
+export const fetchMessages = createAsyncThunk(
+  'chat/fetchMessages',
+  async (chatId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/chats/${chatId}/messages`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch messages');
+    }
+  }
+);
 
-// Initial state
-const initialState = {
-  searchResults: [],
-  activeChats: [],
-  currentChat: null,
-  chatHistory: {},
-  loading: false,
-  error: null,
-  lastUpdated: new Date().toISOString()
-};
+// Send Message
+export const sendMessage = createAsyncThunk(
+  'chat/sendMessage',
+  async ({ chatId, content }, { rejectWithValue, getState }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      const currentUser = getState().auth.user;
+
+      const response = await axios.post(
+        `${API_URL}/chats/${chatId}/messages`,
+        {
+          content,
+          timestamp: currentTime
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return {
+        chatId,
+        message: response.data,
+        lastMessage: {
+          content,
+          sender: currentUser._id,
+          timestamp: currentTime
+        }
+      };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to send message');
+    }
+  }
+);
+
+// Mark Messages as Read
+export const markMessagesAsRead = createAsyncThunk(
+  'chat/markMessagesAsRead',
+  async (chatId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${API_URL}/chats/${chatId}/read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      return { chatId, data: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to mark messages as read');
+    }
+  }
+);
 
 const chatSlice = createSlice({
   name: 'chat',
-  initialState,
+  initialState: {
+    searchResults: [],
+    activeChats: [],
+    currentChat: null,
+    messages: [],
+    loading: false,
+    error: null,
+    unreadCounts: {},
+    lastTypingTimestamp: null
+  },
   reducers: {
     clearSearch: (state) => {
       state.searchResults = [];
     },
+    clearMessages: (state) => {
+      state.messages = [];
+    },
     setCurrentChat: (state, action) => {
       state.currentChat = action.payload;
-    },
-    addMessage: (state, action) => {
-      const { chatId, message } = action.payload;
-      if (!state.chatHistory[chatId]) {
-        state.chatHistory[chatId] = [];
-      }
-      state.chatHistory[chatId].push(message);
-      
-      if (state.currentChat.id === chatId) {
-        state.currentChat.messages.push(message);
-        state.currentChat.lastMessageTime = message.timestamp;
-      }
-    },
-    updateChatStatus: (state, action) => {
-      const { chatId, status } = action.payload;
-      if (state.currentChat.id === chatId) {
-        state.currentChat.status = status;
-      }
-    },
-    setTypingStatus: (state, action) => {
-      const { chatId, isTyping, userId } = action.payload;
-      if (state.currentChat.id === chatId) {
-        state.currentChat.status = isTyping ? 'typing' : 'idle';
-      }
-    },
-    updateUnreadCount: (state, action) => {
-      const { chatId, count } = action.payload;
-      const chatIndex = state.activeChats.findIndex(chat => chat.id === chatId);
-      if (chatIndex !== -1) {
-        state.activeChats[chatIndex].unreadCount = count;
-      }
-    },
-    clearChatHistory: (state, action) => {
-      const chatId = action.payload;
-      if (state.chatHistory[chatId]) {
-        delete state.chatHistory[chatId];
-      }
-      if (state.currentChat.id === chatId) {
-        state.currentChat.messages = [];
-      }
     },
     updateLastMessage: (state, action) => {
       const { chatId, lastMessage } = action.payload;
@@ -236,86 +182,43 @@ const chatSlice = createSlice({
         state.currentChat.lastMessage = lastMessage;
         state.currentChat.lastActivity = lastMessage.timestamp;
       }
+    },
+    updateUnreadCount: (state, action) => {
+      const { chatId, count } = action.payload;
+      state.unreadCounts[chatId] = count;
+    },
+    updateUserStatus: (state, action) => {
+      const { userId, isOnline, lastLogin } = action.payload;
+      state.activeChats = state.activeChats.map(chat => {
+        if (chat.user1Id._id === userId) {
+          chat.user1Id.isOnline = isOnline;
+          chat.user1Id.lastLogin = lastLogin;
+        }
+        if (chat.user2Id._id === userId) {
+          chat.user2Id.isOnline = isOnline;
+          chat.user2Id.lastLogin = lastLogin;
+        }
+        return chat;
+      });
+
+      if (state.currentChat) {
+        if (state.currentChat.user1Id._id === userId) {
+          state.currentChat.user1Id.isOnline = isOnline;
+          state.currentChat.user1Id.lastLogin = lastLogin;
+        }
+        if (state.currentChat.user2Id._id === userId) {
+          state.currentChat.user2Id.isOnline = isOnline;
+          state.currentChat.user2Id.lastLogin = lastLogin;
+        }
+      }
+    },
+    setTypingStatus: (state, action) => {
+      state.lastTypingTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
     }
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Chat History
-      .addCase(fetchChatHistory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchChatHistory.fulfilled, (state, action) => {
-        const { chatId, messages } = action.payload;
-        state.loading = false;
-        state.chatHistory[chatId] = messages;
-        if (state.currentChat.id === chatId) {
-          state.currentChat.messages = messages;
-        }
-        state.lastUpdated = new Date().toISOString();
-      })
-      .addCase(fetchChatHistory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Send Message
-      .addCase(sendMessage.pending, (state) => {
-        state.error = null;
-      })
-      .addCase(sendMessage.fulfilled, (state, action) => {
-        const { chatId, message } = action.payload;
-        if (!state.chatHistory[chatId]) {
-          state.chatHistory[chatId] = [];
-        }
-        state.chatHistory[chatId].push(message);
-        if (state.currentChat.id === chatId) {
-          state.currentChat.messages.push(message);
-          state.currentChat.lastMessageTime = message.timestamp;
-        }
-      })
-      .addCase(sendMessage.rejected, (state, action) => {
-        state.error = action.payload;
-      })
-      // Send Message (testing)
-      // .addCase(sendMessage.pending, (state) => {
-      //   state.error = null;
-      // })
-      // .addCase(sendMessage.fulfilled, (state, action) => {
-      //   state.messages.push(action.payload.message);
-      //   const { chatId, lastMessage } = action.payload;
-      //   // Update last message in chat
-      //   const chat = state.activeChats.find(c => c._id === chatId);
-      //   if (chat) {
-      //     chat.lastMessage = lastMessage;
-      //     chat.lastActivity = lastMessage.timestamp;
-      //   }
-      //   if (state.currentChat?._id === chatId) {
-      //     state.currentChat.lastMessage = lastMessage;
-      //     state.currentChat.lastActivity = lastMessage.timestamp;
-      //   }
-      // })
-      // .addCase(sendMessage.rejected, (state, action) => {
-      //   state.error = action.payload;
-      // })
-      
-      // Translate Message
-      .addCase(translateMessage.fulfilled, (state, action) => {
-        const { messageId, chatId, translation } = action.payload;
-        const updateMessage = (messages) => {
-          const messageIndex = messages.findIndex(msg => msg.id === messageId);
-          if (messageIndex !== -1) {
-            messages[messageIndex].translation = translation;
-          }
-        };
-
-        if (state.chatHistory[chatId]) {
-          updateMessage(state.chatHistory[chatId]);
-        }
-        if (state.currentChat.id === chatId) {
-          updateMessage(state.currentChat.messages);
-        }
-      })
-      // UserSearch
+      // Search Users
       .addCase(searchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -328,6 +231,8 @@ const chatSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Initiate Chat
       .addCase(initiateChat.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -343,6 +248,21 @@ const chatSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Get Active Chats
+      .addCase(getActiveChats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getActiveChats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.activeChats = action.payload;
+      })
+      .addCase(getActiveChats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Fetch Messages
       .addCase(fetchMessages.pending, (state) => {
         state.loading = true;
@@ -356,25 +276,50 @@ const chatSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Send Message
+      .addCase(sendMessage.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(sendMessage.fulfilled, (state, action) => {
+        const { message, chatId, lastMessage } = action.payload;
+        state.messages.push(message);
+        
+        // Update last message in chat
+        const chat = state.activeChats.find(c => c._id === chatId);
+        if (chat) {
+          chat.lastMessage = lastMessage;
+          chat.lastActivity = lastMessage.timestamp;
+        }
+        if (state.currentChat?._id === chatId) {
+          state.currentChat.lastMessage = lastMessage;
+          state.currentChat.lastActivity = lastMessage.timestamp;
+        }
+      })
+      .addCase(sendMessage.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      // Mark Messages as Read
+      .addCase(markMessagesAsRead.fulfilled, (state, action) => {
+        const { chatId } = action.payload;
+        state.unreadCounts[chatId] = 0;
+        state.messages = state.messages.map(msg => ({
+          ...msg,
+          read: true
+        }));
+      });
   }
 });
 
-// Selectors
-export const selectCurrentChat = (state) => state.chat.currentChat;
-export const selectChatHistory = (state) => state.chat.chatHistory;
-export const selectActiveChats = (state) => state.chat.activeChats;
-export const selectChatLoading = (state) => state.chat.loading;
-export const selectChatError = (state) => state.chat.error;
-
-// Action creators
 export const {
   clearSearch,
+  clearMessages,
   setCurrentChat,
-  addMessage,
-  updateChatStatus,
-  setTypingStatus,
+  updateLastMessage,
   updateUnreadCount,
-  clearChatHistory
+  updateUserStatus,
+  setTypingStatus
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
