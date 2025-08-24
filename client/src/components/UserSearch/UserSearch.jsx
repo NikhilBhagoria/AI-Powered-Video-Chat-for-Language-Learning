@@ -25,7 +25,8 @@ const UserSearch = () => {
   const startChat = async (userId) => {
     try {
       const result = await dispatch(initiateChat(userId)).unwrap();
-      if (result.success && result.chatId) {
+      console.log("res",result);
+      if (result.chatId) {
         navigate(`/chat/${result.chatId}`);
       } else {
         console.error('No chat ID received');

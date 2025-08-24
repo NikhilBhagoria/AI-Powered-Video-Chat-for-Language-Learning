@@ -1,11 +1,57 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMessages } from '../../store/slices/chatSlice';
 
 const Chat = () => {
+  const dispatch = useDispatch();
   const { chatId } = useParams();
-  const { currentChat, loading } = useSelector(state => state.chat);
+  const messagesEndRef = useRef(null);
+  const [messageInput, setMessageInput] = useState('');
+
   const { user: currentUser } = useSelector(state => state.auth);
+
+  // Get state from Redux
+  const {currentChat, messages, loading, error } = useSelector(state => state.chat);
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Load initial messages
+  useEffect(() => {
+    if (chatId) {
+      dispatch(fetchMessages(chatId));
+    }
+    return () => {
+      dispatch(clearMessages()); // Clear messages when unmounting
+    };
+  }, [chatId, dispatch]);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Handle message submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!messageInput.trim()) return;
+
+    try {
+      await dispatch(sendMessage({
+        chatId,
+        content: messageInput
+      })).unwrap();
+      
+      setMessageInput(''); // Clear input on success
+      scrollToBottom();
+    } catch (err) {
+      alert('Failed to send message');
+    }
+  };
+
 
   if (loading) {
     return (
@@ -23,8 +69,8 @@ const Chat = () => {
     );
   }
 
-  const partner = currentChat.user1Id._id === currentUser._id 
-    ? currentChat.user2Id 
+  const partner = currentChat.user1Id._id === currentUser._id
+    ? currentChat.user2Id
     : currentChat.user1Id;
 
   return (
@@ -59,14 +105,25 @@ const Chat = () => {
       {/* Message Input */}
       <div className="bg-white p-4 border-t">
         <div className="flex space-x-4">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Send
-          </button>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              type="submit"
+              disabled={!messageInput.trim()}
+              className={`px-6 py-2 rounded-lg transition-colors ${messageInput.trim()
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+            >
+              Send
+            </button>
+          </form>
         </div>
       </div>
     </div>

@@ -77,7 +77,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Register from './components/Auth/Register';
 import LandingPage from './components/LandingPage';
 import UserSearch from './components/UserSearch/UserSearch';
-import Chat from './components/Chat';
+import Chat from './components/Chat/Chat';
 
 function App() {
   // useEffect(() => {
