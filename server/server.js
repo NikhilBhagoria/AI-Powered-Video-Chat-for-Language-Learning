@@ -29,7 +29,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
+// const userRoutes = require('./routes/user');
 const chatRoutes = require('./routes/chat');
 
 const app = express();
@@ -42,7 +42,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+// app.use('/api/users', userRoutes);
 app.use('/api/chats', chatRoutes);
 
 // Connect to MongoDB
