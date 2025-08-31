@@ -20,50 +20,6 @@
 
 // export default App;
 
-// context api
-// import React from 'react';
-// import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
-// import { AuthProvider } from './context/AuthContext';
-// import { SocketProvider } from './context/SocketContext';
-// import PrivateRoute from './components/PrivateRoute'
-// import Login from './components/Auth/Login';
-// import Register from './components/Auth/Register';
-// import Dashboard from './components/Dashboard';
-// import VideoChat from './components/Chat/VideoChat';
-
-// const App = () => {
-//   return (
-//     <AuthProvider>
-//       <SocketProvider>
-//         <Router>
-//           <Routes>
-//             <Route path="/login" element={<Login />} />
-//             <Route path="/register" element={<Register />} />
-//             <Route
-//               path="/dashboard"
-//               element={
-//                 <PrivateRoute>
-//                   <Dashboard />
-//                 </PrivateRoute>
-//               }
-//             />
-//             <Route
-//               path="/chat/:partnerId"
-//               element={
-//                 <PrivateRoute>
-//                   <VideoChat />
-//                 </PrivateRoute>
-//               }
-//             />
-//             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-//           </Routes>
-//         </Router>
-//       </SocketProvider>
-//     </AuthProvider>
-//   );
-// };
-
-// export default App;
 
 // Redux 
 import React, { useEffect } from 'react';
@@ -78,6 +34,8 @@ import Register from './components/Auth/Register';
 import LandingPage from './components/LandingPage';
 import UserSearch from './components/UserSearch/UserSearch';
 import Chat from './components/Chat/Chat';
+import ChatRoom from './components/Chat/ChatRoom'
+import ChatList from './components/Chat/ChatList';
 
 function App() {
   // useEffect(() => {
@@ -99,7 +57,9 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/search" element={
+          <Route path="/chats" element={<ChatList />} />
+          <Route path="/chats/:chatId" element={<ChatRoom />} />
+          <Route path="/chats/search" element={
             <PrivateRoute>
               <UserSearch />
             </PrivateRoute>
@@ -112,7 +72,8 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          
         </Routes>
       </Router>
     </Provider>
