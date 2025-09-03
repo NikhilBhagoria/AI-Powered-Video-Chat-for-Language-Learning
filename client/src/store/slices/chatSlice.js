@@ -15,6 +15,7 @@ export const searchUsers = createAsyncThunk(
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+      console.log("res",response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to search users');
