@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData } from '../../store/slices/userSlice';
 import { logoutUser } from '../../store/slices/authSlice';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -44,6 +44,10 @@ const Dashboard = () => {
                 {currentDateTime} UTC
               </p>
             </div>
+            <Link to={'/chats/search'} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" >
+              Find Users
+            </Link>
             <button
               onClick={handleLogout}
               className="ml-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
