@@ -11,6 +11,7 @@ const UserSearch = () => {
   
   const { searchResults, loading } = useSelector(state => state.chat);
   const { user: currentUser } = useSelector(state => state.auth);
+  console.log("cu",currentUser)
 
   const languages = [
     'English', 'Spanish', 'French', 'German', 
